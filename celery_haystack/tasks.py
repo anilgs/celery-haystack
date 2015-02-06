@@ -1,6 +1,7 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import call_command
 from django.db.models.loading import get_model
+import django
 
 from .conf import settings
 
@@ -100,6 +101,8 @@ class CeleryHaystackSignalHandler(Task):
         Trigger the actual index handler depending on the
         given action ('update' or 'delete').
         """
+        #AGS:20150206: Django 1.7.1 requires this to be invoked from any non-Django thread, else Models won't be loaded
+        django.setup()
         # First get the object path and pk (e.g. ('notes.note', 23))
         object_path, pk = self.split_identifier(identifier, **kwargs)
         if object_path is None or pk is None:
